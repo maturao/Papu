@@ -7,6 +7,7 @@
 	let users: User[] = [];
 
 	interface User {
+		uniqueId: number;
 		name: string;
 		total: number;
 	}
@@ -65,7 +66,7 @@
 		// Log QR code content
 		console.log(qr);
 
-		var canvas = document.getElementById(user.name);
+		var canvas = document.getElementById(user.uniqueId.toString()) as HTMLCanvasElement;
 
 		QRCode.toCanvas(canvas, qr, function (error: any) {
 			if (error) console.error(error);
@@ -74,7 +75,7 @@
 	};
 
 	const addUser = (name: string) => {
-		var user = { name: name, total: 0 };
+		var user = { name: name, total: 0, uniqueId: Math.floor(Math.random() * 1000000) };
 
 		users.push(user);
 		users = [...users];
@@ -84,9 +85,23 @@
 <div class="rounded-xl bg-gray-100 p-10 m-5">
 	<!-- Payment info  -->
 	<!-- IBAN input -->
-	<div class="flex flex-row justify-center items-center gap-10 m-2">
-		<h1 class="text-center font-bold text-2xl">IBAN</h1>
-		<input type="text" placeholder="IBAN" on:keypress={setIban} class="text-center w-60 rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none" />
+	<div class="flex flex-col gap-6 m-2 ">
+		<div class="flex flex-row items-center justify-evenly gap-6">
+			<h1 class="font-bold mr-auto text-2xl">IBAN</h1>
+			<input type="text" placeholder="IBAN" on:keypress={setIban} class="text-center w-60 rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none" />
+		</div>
+		<div class="flex flex-row items-center justify-evenly gap-6">
+			<h1 class="font-bold mr-auto text-2xl">Discount</h1>
+			<input type="text" placeholder="Discount" class="text-center w-60 rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none" />
+		</div>
+		<div class="flex flex-row items-center justify-evenly gap-6">
+			<h1 class="font-bold mr-auto text-2xl">Other</h1>
+			<input type="text" placeholder="Other" class="text-center w-60 rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none" />
+		</div>
+		<div class="flex flex-row items-center justify-evenly gap-6">
+			<p class="font-bold mr-auto text-2xl">Total</p>
+			<input type="text" placeholder="Total" class="text-center w-60 rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none" />
+		</div>
 	</div>
 </div>
 
@@ -100,9 +115,6 @@
 				<input
 					type="number"
 					placeholder="Price"
-					on:load={() => {
-						generateQr(user);
-					}}
 					on:keypress={(e) => {
 						updateAmount(e, user);
 					}}
@@ -110,14 +122,24 @@
 				/>
 
 				<!-- QR code -->
-				<canvas class="h-[180px] w-[180px]" id={user.name} />
+				<canvas class="h-[164px] w-[164px]" id={user.uniqueId.toString()} />
 			</div>
 		{/each}
 	</div>
 
 	<div class="m-auto flex flex-col gap-2 max-w-[200px]">
 		<!-- User name input -->
-		<input on:change={setUserName} type="text" placeholder="User name" class="rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none" />
+		<input
+			on:change={setUserName}
+			on:keypress={(e) => {
+				if (e.key === 'Enter') {
+					addUser(newUserName);
+				}
+			}}
+			type="text"
+			placeholder="User name"
+			class="rounded-lg p-2 border-2 border-gray-300 focus:border-orange-500 focus:outline-none"
+		/>
 
 		<!-- Add user button -->
 		<button
